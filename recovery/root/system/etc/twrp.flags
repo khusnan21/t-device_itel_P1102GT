@@ -1,0 +1,5 @@
+--no-verity
+--voldmanaged=datadata
+--voldmanaged=usb
+--skip-mount
+--mount-all

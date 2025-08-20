@@ -1,0 +1,38 @@
+# TWRP-ready fstab for MT8781 Super Partition
+
+# System partitions (read-only for recovery)
+system  /system        ext4  ro,slotselect,logical
+system_ext /system_ext ext4 ro,slotselect,logical
+vendor   /vendor       ext4  ro,slotselect,logical
+product  /product      ext4  ro,slotselect,logical
+
+# DLKM partitions (optional, usually not needed for TWRP)
+vendor_dlkm /vendor_dlkm ext4 ro,slotselect,logical
+odm_dlkm    /odm_dlkm    ext4 ro,slotselect,logical
+
+# Metadata & userdata (required for decrypt)
+metadata  /metadata    ext4  noatime,nosuid,nodev,discard,wait,check,formattable,first_stage_mount
+data      /data        f2fs  noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt,wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
+
+# Persistent / backup partitions
+persist    /mnt/vendor/persist ext4 noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc,wait,check,formattable
+protect1   /mnt/vendor/protect_f ext4 noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc,wait,check,formattable
+protect2   /mnt/vendor/protect_s ext4 noatime,nosuid,nodev,noauto_da_alloc,commit=1,nodelalloc,wait,check,formattable
+
+# Boot & vendor_boot
+boot       /boot         emmc defaults,first_stage_mount,nofail,slotselect
+vendor_boot /vendor_boot emmc defaults,first_stage_mount,nofail,slotselect
+
+# VBMeta partitions (optional for recovery)
+vbmeta        /vbmeta         emmc defaults,first_stage_mount,nofail,slotselect
+vbmeta_vendor /vbmeta_vendor  emmc defaults,first_stage_mount,nofail,slotselect
+
+# DT/ODM partitions
+dtbo        /dtbo       emmc defaults
+odmdtbo     /odmdtbo    emmc defaults
+
+# Other partitions (read-only)
+misc      /misc      emmc defaults
+proinfo   /proinfo   emmc defaults
+nvram     /nvram     emmc defaults
+frp       /persistent emmc defaults

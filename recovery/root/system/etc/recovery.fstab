@@ -1,0 +1,49 @@
+# TWRP Recovery fstab for MT6789
+
+# system partition
+/dev/block/dm-3  /system       ext4    ro,wait,check
+/dev/block/dm-4  /system_ext   ext4    ro,wait,check
+/dev/block/dm-1  /product      ext4    ro,wait,check
+
+# vendor
+/dev/block/dm-5  /vendor       ext4    ro,wait,check
+/dev/block/dm-6  /vendor_dlkm  ext4    ro,wait,check
+/dev/block/dm-0  /odm_dlkm     ext4    ro,wait,check
+
+# data (FBE/FDE support)
+# voldmanaged=datadata memungkinkan TWRP mendekripsi
+/dev/block/sdc61 /data         f2fs    defaults,voldmanaged=datadata,wait,check
+
+# cache
+/dev/block/sdc7  /cache        ext4    defaults,wait,check
+
+# misc & metadata
+/dev/block/sdc13 /metadata     ext4    ro,wait,check
+/dev/block/sdc3  /expdb        ext4    ro,wait,check
+/dev/block/sdc34 /proinfo      ext4    ro,wait,check
+/dev/block/sdc16 /protect2     ext4    ro,wait,check
+/dev/block/sdc15 /protect1     ext4    ro,wait,check
+
+# boot & recovery partitions
+/dev/block/sdc28 /boot_a       emmc    ro,wait,check
+/dev/block/sdc52 /boot_b       emmc    ro,wait,check
+/dev/block/sdc30 /init_boot_a  emmc    ro,wait,check
+/dev/block/sdc54 /init_boot_b  emmc    ro,wait,check
+/dev/block/sdc29 /vendor_boot_a emmc   ro,wait,check
+/dev/block/sdc53 /vendor_boot_b emmc   ro,wait,check
+
+# vbmeta
+/dev/block/sdc8  /vbmeta_system_a emmc ro,wait,check
+/dev/block/sdc11 /vbmeta_system_b emmc ro,wait,check
+/dev/block/sdc9  /vbmeta_vendor_a emmc ro,wait,check
+/dev/block/sdc12 /vbmeta_vendor_b emmc ro,wait,check
+/dev/block/sdc10 /vbmeta_b       emmc ro,wait,check
+/dev/block/sdc7  /vbmeta_a       emmc ro,wait,check
+
+# optional mounts
+/dev/block/sdc60 /super        emmc    ro,wait,check
+/dev/block/sdc5  /nvcfg        ext4    ro,wait,check
+/dev/block/sdc6  /nvdata       ext4    ro,wait,check
+
+# temporary mounts for TWRP
+/dev/tmp-phh      /tmp          ext4    rw,wait,check
