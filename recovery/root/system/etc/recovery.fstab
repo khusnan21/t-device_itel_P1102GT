@@ -1,49 +1,38 @@
-# TWRP Recovery fstab for MT6789
+# Android fstab file for TWRP
+# The filesystem that contains the filesystem checker binary (typically /system) cannot
+# specify MF_CHECK, and must come before any filesystems that do specify MF_CHECK
 
-# system partition
-/dev/block/dm-3  /system       ext4    ro,wait,check
-/dev/block/dm-4  /system_ext   ext4    ro,wait,check
-/dev/block/dm-1  /product      ext4    ro,wait,check
+#<src>                  <mnt_point>         <type>      <mnt_flags and options>                                   <fs_mgr_flags>
+# Vendor Boot and Boot
+/dev/block/by-name/vendor_boot_a  /vendor_boot  emmc  ro  length=67108864                                 wait
+/dev/block/by-name/vendor_boot_b  /vendor_boot  emmc  ro  length=67108864                                 wait
+/dev/block/by-name/boot_a         /boot         emmc  ro  length=67108864                                 wait
+/dev/block/by-name/boot_b         /boot         emmc  ro  length=67108864                                 wait
+/dev/block/by-name/vbmeta_a       /vbmeta       emmc  ro  length=8388608                                  wait
+/dev/block/by-name/vbmeta_b       /vbmeta       emmc  ro  length=8388608                                  wait
 
-# vendor
-/dev/block/dm-5  /vendor       ext4    ro,wait,check
-/dev/block/dm-6  /vendor_dlkm  ext4    ro,wait,check
-/dev/block/dm-0  /odm_dlkm     ext4    ro,wait,check
+# Logical partitions (Dynamic Partitions)
+#/dev/block/by-name/system_a       /system       ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/system_b       /system       ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/vendor_a       /vendor       ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/vendor_b       /vendor       ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/product_a      /product      ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/product_b      /product      ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/system_ext_a   /system_ext   ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/system_ext_b   /system_ext   ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/vendor_dlkm_a  /vendor_dlkm  ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/vendor_dlkm_b  /vendor_dlkm  ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/odm_dlkm_a     /odm_dlkm     ext4      ro                                              wait,slotselect,logical
+#/dev/block/by-name/odm_dlkm_b     /odm_dlkm     ext4      ro                                              wait,slotselect,logical
+# Note: Use dynamic partitions via super, paths above are commented for TWRP compatibility
 
-# data (FBE/FDE support)
-# voldmanaged=datadata memungkinkan TWRP mendekripsi
-/dev/block/sdc61 /data         f2fs    defaults,voldmanaged=datadata,wait,check
+/dev/block/by-name/super          /super        auto      ro                                              wait,slotselect,logical
 
-# cache
-/dev/block/sdc7  /cache        ext4    defaults,wait,check
+# Metadata
+/dev/block/by-name/metadata       /metadata     ext4      noatime,nosuid,nodev,discard                         wait,check,formattable
 
-# misc & metadata
-/dev/block/sdc13 /metadata     ext4    ro,wait,check
-/dev/block/sdc3  /expdb        ext4    ro,wait,check
-/dev/block/sdc34 /proinfo      ext4    ro,wait,check
-/dev/block/sdc16 /protect2     ext4    ro,wait,check
-/dev/block/sdc15 /protect1     ext4    ro,wait,check
+# Userdata
+/dev/block/by-name/userdata       /data         f2fs      noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt  wait,check,formattable,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,length=116803330432
 
-# boot & recovery partitions
-/dev/block/sdc28 /boot_a       emmc    ro,wait,check
-/dev/block/sdc52 /boot_b       emmc    ro,wait,check
-/dev/block/sdc30 /init_boot_a  emmc    ro,wait,check
-/dev/block/sdc54 /init_boot_b  emmc    ro,wait,check
-/dev/block/sdc29 /vendor_boot_a emmc   ro,wait,check
-/dev/block/sdc53 /vendor_boot_b emmc   ro,wait,check
-
-# vbmeta
-/dev/block/sdc8  /vbmeta_system_a emmc ro,wait,check
-/dev/block/sdc11 /vbmeta_system_b emmc ro,wait,check
-/dev/block/sdc9  /vbmeta_vendor_a emmc ro,wait,check
-/dev/block/sdc12 /vbmeta_vendor_b emmc ro,wait,check
-/dev/block/sdc10 /vbmeta_b       emmc ro,wait,check
-/dev/block/sdc7  /vbmeta_a       emmc ro,wait,check
-
-# optional mounts
-/dev/block/sdc60 /super        emmc    ro,wait,check
-/dev/block/sdc5  /nvcfg        ext4    ro,wait,check
-/dev/block/sdc6  /nvdata       ext4    ro,wait,check
-
-# temporary mounts for TWRP
-/dev/tmp-phh      /tmp          ext4    rw,wait,check
+# Misc (placeholder for update_engine)
+/dev/block/by-name/misc           /misc         emmc      defaults                                        defaults

@@ -1,0 +1,42 @@
+# ueventd.mt6789.rc for Itel P1102GT
+# Change partition permissions based on provided partition data
+
+# UFS-specific (based on /dev/block/sdc)
+/dev/block/sdc                                   0660    root    system
+
+# Partitions from device data
+/dev/block/by-name/boot_a         0640    root    system
+/dev/block/by-name/boot_b         0640    root    system
+/dev/block/by-name/vendor_boot_a  0640    root    system
+/dev/block/by-name/vendor_boot_b  0640    root    system
+/dev/block/by-name/vbmeta_a       0640    root    system
+/dev/block/by-name/vbmeta_b       0640    root    system
+/dev/block/by-name/metadata       0700    system  system
+/dev/block/by-name/userdata       0700    system  system
+/dev/block/by-name/nvcfg          0700    system  system
+/dev/block/by-name/nvdata         0700    system  system
+/dev/block/by-name/protect1       0700    system  system
+/dev/block/by-name/protect2       0700    system  system
+/dev/block/by-name/persist        0700    system  system
+
+# TrustKernel related devices
+/dev/mmcblk0rpmb                  0660    root    system
+/dev/tkcoredrv                    0660    root    system
+
+# Connectivity (verified or minimal)
+/dev/stpwmt                       0660    system  system
+/dev/wmtdetect                    0660    system  system
+
+# Input/Touch (assumed based on MT6789)
+/dev/input/*                      0660    root    input
+/dev/touch                        0660    root    system
+
+# Camera (assumed based on MT6789)
+/dev/video*                       0660    camera  system
+/dev/media*                       0660    camera  system
+
+# Removed unnecessary entries: /dev/block/mmcblk0boot0, /dev/block/mmcblk0boot1, /dev/block/sda, /dev/block/sdb, /dev/misc-sd, /dev/block/by-name/misc2, /dev/block/by-name/recovery, /dev/block/by-name/secro, /dev/block/by-name/proinfo, /dev/block/by-name/nvram, /dev/block/by-name/para, /dev/block/by-name/logo, /dev/block/by-name/frp, /dev/block/by-name/md1img*, /dev/block/by-name/md1dsp, /dev/block/by-name/boot_para, /dev/otp, /dev/conninfra_dev, /dev/conn_pwr_dev, /dev/stpbt, /dev/fw_log_bt, /dev/gps*, /dev/stpant, /dev/wmtWifi, /dev/fw_log_wifi, /dev/fm, /dev/st21nfc, /dev/st54spi, /dev/btif, /dev/nebula-ipc-dev0, /dev/mobicore*, /dev/t-base-tui, /dev/teeperf, /dev/vcu, /dev/vdec-fmt, /dev/fmt_sync, /dev/mtk_hcp, /dev/dri/card0, /dev/mddp, /dev/ttyS*, /dev/ttyUSB*, /dev/ccci*, /dev/eemcs*, /dev/irtx, /dev/lirc*, /dev/ir-learning, /dev/pvrsrvkm, /dev/pvr_sync, /dev/mtgpio, /dev/camera*, /dev/ttySDIO*, /dev/ttyRB*, /dev/mali0, /dev/ion, /dev/dma_heap/mtk_*, /dev/hotknot, /dev/RT_Monitor, /dev/kick_powerkey, /dev/ttyACM0, /dev/wb_charger_control, /dev/focaltech_fp, /dev/focaltech_fpspi
+# Note: Removed entries not found in partition data or irrelevant for TWRP/TrustKernel
+
+# Sysfs properties (minimal)
+/sys/devices/platform/trusty.*      trusty_version        0440  root   log

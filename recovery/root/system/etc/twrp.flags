@@ -1,5 +1,38 @@
---no-verity
---voldmanaged=datadata
---voldmanaged=usb
---skip-mount
---mount-all
+# Android twrp.flags file
+# mount point		fs		device						device2			 device3			flags
+
+# User writeable partitions
+/boot			emmc		/dev/block/by-name/boot_a				/dev/block/by-name/boot_b		flags=display=boot;slotselect;backup;flashimg
+/vendor_boot		emmc		/dev/block/by-name/vendor_boot_a			/dev/block/by-name/vendor_boot_b		flags=display=vendor_boot;slotselect;backup;flashimg
+/vbmeta			emmc		/dev/block/by-name/vbmeta_a				/dev/block/by-name/vbmeta_b		flags=display=vbmeta;slotselect;backup;flashimg
+# Note: vbmeta_system and vbmeta_vendor removed as not mentioned in partition data
+
+# Firmware
+/metadata		ext4		/dev/block/by-name/metadata										flags=display=metadata;backup
+/misc			emmc		/dev/block/by-name/misc											flags=display=misc;backup
+
+# Sensitive Data (verified from partition data)
+/nvcfg			ext4		/dev/block/by-name/nvcfg										flags=display=nvcfg;backup
+/nvdata			ext4		/dev/block/by-name/nvdata										flags=display=nvdata;backup
+/protect_f		ext4		/dev/block/by-name/protect1										flags=display=protect_f;backup
+/protect_s		ext4		/dev/block/by-name/protect2										flags=display=protect_s;backup
+/persist		ext4		/dev/block/by-name/persist										flags=display=persist;backup
+
+# Standard MediaTek's partitions (verified or removed)
+/tee1			emmc		/dev/block/by-name/tee1											flags=display=tee1;backup
+# Removed: /expdb, /logo, /otp, /seccfg, /spmfw, /tee2 as not in partition data
+
+# Removable Storage
+/external_sd		auto		/dev/block/mmcblk1p1				/dev/block/mmcblk0p1					flags=display="Micro SD Card";storage;wipeingui;removable;backup=0
+/usb_otg		auto		/dev/block/sda1					/dev/block/sda		/dev/block/sdd1			flags=display="USB-OTG";storage;wipeingui;removable;backup=0
+
+# Flashable logical partitions (via super partition)
+/system			auto		/dev/block/by-name/super										flags=display=system;backup;wipe;flashimg
+/vendor			auto		/dev/block/by-name/super										flags=display=vendor;backup;wipe;flashimg
+/product		auto		/dev/block/by-name/super										flags=display=product;backup;wipe;flashimg
+/system_ext		auto		/dev/block/by-name/super										flags=display=system_ext;backup;wipe;flashimg
+/vendor_dlkm	auto		/dev/block/by-name/super										flags=display=vendor_dlkm;backup;wipe;flashimg
+/odm_dlkm		auto		/dev/block/by-name/super										flags=display=odm_dlkm;backup;wipe;flashimg
+
+# Userdata
+/data			f2fs		/dev/block/by-name/userdata										flags=display=data;backup;wipe;encryptable=footer;length=116803330432

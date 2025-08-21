@@ -13,4 +13,4 @@ ro.hardware.gatekeeper=trustkernel
 # TEE
 ro.vendor.mtk_trustkernel_tee_support=1
 
-ro.hardware.keymint=trustkernel
+keymaster_ver=4.1

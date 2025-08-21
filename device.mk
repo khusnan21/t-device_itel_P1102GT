@@ -58,7 +58,7 @@ PRODUCT_PROPERTY_OVERRIDES += ro.twrp.vendor_boot=true
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
 # API
-PRODUCT_SHIPPING_API_LEVEL := 31
+PRODUCT_SHIPPING_API_LEVEL := 34
 PRODUCT_TARGET_VNDK_VERSION := 31
 
 # Boot control HAL
@@ -66,6 +66,8 @@ PRODUCT_PACKAGES += \
     android.hardware.boot@1.2-mtkimpl \
     android.hardware.boot@1.2-mtkimpl.recovery
 
+PRODUCT_PACKAGES_DEBUG += \
+    bootctl
 
 # Fastbootd
 PRODUCT_PACKAGES += \
@@ -77,13 +79,24 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
     android.hardware.health@2.1-service
 
-# KeyMint TrustKernel + Gatekeeper
+# Keymaster
 PRODUCT_PACKAGES += \
-    android.hardware.security.keymint-service.trustkernel \
+    android.hardware.keymaster@4.1
+
+# Keystore Hal
+PRODUCT_PACKAGES += \
+    android.system.keystore2
+
+# MTK plpath utils
+PRODUCT_PACKAGES += \
+    mtk_plpath_utils \
+    mtk_plpath_utils.recovery
+
+# Security
+PRODUCT_PACKAGES += \
+    android.hardware.security.keymint \
     android.hardware.security.secureclock \
-    android.hardware.security.sharedsecret \
-    android.system.keystore2 \
-    android.hardware.gatekeeper@1.0-service.trustkernel
+    android.hardware.security.sharedsecret
 
 # Update engine
 PRODUCT_PACKAGES += \
@@ -96,4 +109,7 @@ PRODUCT_PACKAGES_DEBUG += \
 
 # Additional configs
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
-    $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.security.keymint-service.trustkernel.so
+    $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.keymaster@4.1
+
+TARGET_RECOVERY_DEVICE_MODULES += \
+    android.hardware.keymaster@4.1
