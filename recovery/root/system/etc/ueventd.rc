@@ -23,7 +23,6 @@ subsystem sound
 subsystem dma_heap
    devname uevent_devpath
    dirname /dev/dma_heap
-
 # ueventd can only set permissions on device nodes and their associated
 # sysfs attributes, not on arbitrary paths.
 #
@@ -38,6 +37,8 @@ subsystem dma_heap
 /dev/tty                  0666   root       root
 /dev/random               0666   root       root
 /dev/urandom              0666   root       root
+# Aside from kernel threads, only prng_seeder needs access to HW RNG
+/dev/hw_random            0400   prng_seeder prng_seeder
 /dev/ashmem*              0666   root       root
 /dev/binder               0666   root       root
 /dev/hwbinder             0666   root       root
@@ -48,23 +49,8 @@ subsystem dma_heap
 /dev/dma_heap/system-uncached      0444   system     system
 /dev/dma_heap/system-secure        0444   system     system
 
-# Partitions from device data
-/dev/block/by-name/boot_a         0600   root       root
-/dev/block/by-name/boot_b         0600   root       root
-/dev/block/by-name/vendor_boot_a  0600   root       root
-/dev/block/by-name/vendor_boot_b  0600   root       root
-/dev/block/by-name/vbmeta_a       0600   root       root
-/dev/block/by-name/vbmeta_b       0600   root       root
-/dev/block/by-name/metadata       0700   system     system
-/dev/block/by-name/userdata       0700   system     system
-/dev/block/by-name/nvcfg          0700   system     system
-/dev/block/by-name/nvdata         0700   system     system
-/dev/block/by-name/protect1       0700   system     system
-/dev/block/by-name/protect2       0700   system     system
-/dev/block/by-name/persist        0700   system     system
-
-# TrustKernel related devices
-/dev/mmcblk0rpmb              0600   root       system
+# kms driver for drm based gpu
+/dev/dri/*                0666   root       graphics
 
 # these should not be world writable
 /dev/uhid                 0660   uhid       uhid
@@ -83,10 +69,19 @@ subsystem dma_heap
 # CDMA radio interface MUX
 /dev/ppp                  0660   radio      vpn
 
-# Sysfs properties
+/dev/kvm                  0666   root       root
+/dev/vhost-vsock          0666   root       root
+
+# sysfs properties
 /sys/devices/platform/trusty.*      trusty_version        0440  root   log
 /sys/devices/virtual/input/input*   enable      0660  root   input
 /sys/devices/virtual/input/input*   poll_delay  0660  root   input
 /sys/devices/virtual/usb_composite/*   enable      0664  root   system
 /sys/devices/system/cpu/cpu*   cpufreq/scaling_max_freq   0664  system system
 /sys/devices/system/cpu/cpu*   cpufreq/scaling_min_freq   0664  system system
+/sys/devices/virtual/misc/uhid/*/leds/* brightness   0664  system system
+/sys/devices/virtual/misc/uhid/*/leds/* multi_intensity   0664  system system
+
+#SDD: add TESSCR-19159 by chonglin.yang 2023/5/12 for system monitor feature. Start
+/dev/ensignal   0666   root   root
+#SDD: add TESSCR-19159 by chonglin.yang 2023/5/12 for system monitor feature. End

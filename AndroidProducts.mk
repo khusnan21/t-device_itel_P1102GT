@@ -8,6 +8,4 @@ PRODUCT_MAKEFILES := \
     $(LOCAL_DIR)/twrp_P1102GT.mk
 
 COMMON_LUNCH_CHOICES := \
-    twrp_P1102GT-user \
-    twrp_P1102GT-userdebug \
     twrp_P1102GT-eng

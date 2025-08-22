@@ -1,27 +1,26 @@
 
 system /system erofs ro wait,slotselect,logical,first_stage_mount
-system /system ext4 ro wait,slotselect,logical,first_stage_mount
 
 system_ext /system_ext erofs ro wait,slotselect,logical,first_stage_mount
 
 vendor /vendor erofs ro wait,slotselect,logical,first_stage_mount
-vendor /vendor ext4 ro wait,slotselect,logical,first_stage_mount
+
 
 product /product erofs ro wait,slotselect,logical,first_stage_mount
-product /product ext4 ro wait,slotselect,logical,first_stage_mount
+
+
+
+
 
 vendor_dlkm /vendor_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 
+
 odm_dlkm /odm_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
+
 
 /dev/block/by-name/metadata /metadata ext4 noatime,nosuid,nodev,discard wait,check,formattable,first_stage_mount
 
-/dev/block/by-name/userdata /data f2fs noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2+inlinecrypt_optimized,keydirectory=/metadata/vold/metadata_encryption,fsverity
-
-
-
-
-/dev/block/by-name/tranfs /tranfs ext4 noatime,nosuid,nodev,noauto_da_alloc,discard wait,check,formattable,nofail,first_stage_mount
+/dev/block/by-name/userdata /data f2fs noatime,nosuid,nodev,discard,noflush_merge,fsync_mode=nobarrier,reserve_root=134217,resgid=1065,inlinecrypt wait,check,formattable,quota,latemount,resize,reservedsize=128m,checkpoint=fs,fileencryption=aes-256-xts:aes-256-cts:v2,keydirectory=/metadata/vold/metadata_encryption,fsverity
 
 
 
@@ -40,16 +39,14 @@ odm_dlkm /odm_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 /devices/platform/soc/11240000.mmc* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
 /devices/platform/soc/soc:odm/11230000.msdc* auto auto defaults voldmanaged=sdcard1:auto,encryptable=userdata
 
-
-/devices/platform/soc/mt_usb* auto vfat defaults voldmanaged=usbotg:auto,encryptable=userdata
-
+/devices/platform/soc/mt_usb* auto vfat defaults voldmanaged=usbotg:auto
 
 /dev/block/by-name/frp /persistent emmc defaults defaults
 
 /dev/block/by-name/nvram /nvram emmc defaults defaults
 /dev/block/by-name/proinfo /proinfo emmc defaults defaults
-/dev/block/by-name/lk1 /lk1 emmc defaults defaults
-/dev/block/by-name/bootloader2 /bootloader2 emmc defaults defaults
+/dev/block/by-name/lk /bootloader emmc defaults defaults
+/dev/block/by-name/lk2 /bootloader2 emmc defaults defaults
 /dev/block/by-name/para /para emmc defaults defaults
 /dev/block/by-name/misc /misc emmc defaults defaults
 
@@ -77,15 +74,15 @@ odm_dlkm /odm_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 /dev/block/by-name/scp2 /scp2 emmc defaults defaults
 
 
-/dev/block/by-name/sspm1 /sspm1 emmc defaults defaults
-/dev/block/by-name/sspm2 /sspm2 emmc defaults defaults
+/dev/block/by-name/sspm_1 /sspm_1 emmc defaults defaults
+/dev/block/by-name/sspm_2 /sspm_2 emmc defaults defaults
 
 
-/dev/block/by-name/dpm1 /dpm1 emmc defaults defaults
-/dev/block/by-name/dpm2 /dpm2 emmc defaults defaults
+/dev/block/by-name/dpm_1 /dpm_1 emmc defaults defaults
+/dev/block/by-name/dpm_2 /dpm_2 emmc defaults defaults
 
-/dev/block/by-name/mcupm1 /mcupm1 emmc defaults defaults
-/dev/block/by-name/mcupm2 /mcupm2 emmc defaults defaults
+/dev/block/by-name/mcupm_1 /mcupm_1 emmc defaults defaults
+/dev/block/by-name/mcupm_2 /mcupm_2 emmc defaults defaults
 
 
 
@@ -100,15 +97,6 @@ odm_dlkm /odm_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 
 /dev/block/by-name/gz1 /gz1 emmc defaults defaults
 /dev/block/by-name/gz2 /gz2 emmc defaults defaults
-/dev/block/by-name/ccu /ccu emmc defaults defaults
-/dev/block/by-name/vcp /vcp emmc defaults defaults
-/dev/block/by-name/gpueb /gpueb emmc defaults defaults
-/dev/block/by-name/mcf_ota /mcf_ota emmc defaults defaults
-/dev/block/by-name/vendor_boot /vendor_boot emmc defaults defaults
-/dev/block/by-name/mvpu_algo1 /mvpu_algo1 emmc defaults defaults
-/dev/block/by-name/mvpu_algo2 /mvpu_algo2 emmc defaults defaults
-/dev/block/by-name/apusys1 /apusys1 emmc defaults defaults
-/dev/block/by-name/apusys2 /apusys2 emmc defaults defaults
 
 /dev/block/by-name/spmfw /spmfw emmc defaults defaults
 
@@ -127,21 +115,3 @@ odm_dlkm /odm_dlkm ext4 ro wait,slotselect,logical,first_stage_mount
 
 
 /dev/block/by-name/vbmeta /vbmeta emmc defaults defaults
-
-
-
-
-/dev/block/by-name/tkv /tkv emmc defaults defaults
-
-
-
-
-
-tr_mi /tr_mi ext4 ro wait,slotselect,logical,first_stage_mount,nofail
-tr_theme /tr_theme ext4 ro wait,slotselect,logical,first_stage_mount,nofail
-tr_region /tr_region ext4 ro wait,slotselect,logical,first_stage_mount,nofail
-tr_company /tr_company ext4 ro wait,slotselect,logical,first_stage_mount,nofail
-tr_carrier /tr_carrier ext4 ro wait,slotselect,logical,first_stage_mount,nofail
-
-tr_product /tr_product erofs ro wait,slotselect,logical,first_stage_mount,nofail
-tr_preload /tr_preload erofs ro wait,slotselect,logical,first_stage_mount,nofail
