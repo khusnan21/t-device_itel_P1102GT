@@ -1,13 +1,12 @@
 import /init.custom.rc
 import /init.vibrator.rc
-import /init.tee.rc 
+# init.tee.rc tidak dipakai lagi karena sudah digabung di sini
 
 on early-init
     export ANDROID_ROOT /system
     export ANDROID_DATA /data
     mkdir /tmp 0777
     mkdir /mnt 0777
-    # Remove init.mediatek.rc since it doesn't exist
     import /vendor/etc/init/android.hardware.security.keymint.rc
 
 on init
@@ -30,7 +29,7 @@ on early-fs
     start vold
 
 on late-fs
-    mount_all /first_stage_ramdisk/fstab.mt8781 --late
+    mount_all /first_stage_ramdisk/fstab.mt6789 --late
     mount /dev/block/by-name/super /system auto ro wait
     mount /dev/block/by-name/super /vendor auto ro wait
 
@@ -72,8 +71,9 @@ service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
 
 service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
     interface android.hardware.gatekeeper@1.0::IGatekeeper default
-    user root
-    group root
+    class hal
+    user system
+    group system
     disabled
     seclabel u:r:recovery:s0
 
@@ -83,31 +83,47 @@ service vendor.keymint-trustkernel /vendor/bin/hw/android.hardware.security.keym
     user nobody
     seclabel u:r:recovery:s0
 
+service keymaster_attestation-1-1 /vendor/bin/hw/vendor.mediatek.hardware.keymaster_attestation@1.1-service
+    interface vendor.mediatek.hardware.keymaster_attestation@1.0::IKeymasterDevice default
+    interface vendor.mediatek.hardware.keymaster_attestation@1.1::IKeymasterDevice default
+    class hal
+    user system
+    group system
+    disabled
+    seclabel u:r:recovery:s0
+
 on property:crypto.ready=1
     start vendor.keymint-trustkernel
     ifelse "! -f /data/.decrypted", (
         log -p e "Data decryption failed"
     )
+    start vendor.gatekeeper-1-0
+    start keymaster_attestation-1-1
 
 on property:hwservicemanager.ready=true
     start vendor.gatekeeper-1-0
     start vendor.keymint-trustkernel
+    start keymaster_attestation-1-1
 
 on property:ro.crypto.state=unsupported
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
+    stop keymaster_attestation-1-1
 
 on property:ro.crypto.state=unencrypted
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
+    stop keymaster_attestation-1-1
 
 on property:twrp.decrypt.done=true
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
+    stop keymaster_attestation-1-1
 
 on property:crypto.ready=0
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
+    stop keymaster_attestation-1-1
 
 on post-fs-data
     mkdir /data/vendor_de 0770 system system
