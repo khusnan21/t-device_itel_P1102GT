@@ -1,19 +1,12 @@
+import /init.tee.rc
 import /init.custom.rc
 import /init.vibrator.rc
-import /init.tee.rc 
-
-on early-init
-    export ANDROID_ROOT /system
-    export ANDROID_DATA /data
-    mkdir /tmp 0777
-    mkdir /mnt 0777
-    import /vendor/etc/init/android.hardware.security.keymint.rc
 
 on init
     setprop sys.usb.configfs 1
     setprop sys.usb.controller "musb-hdrc"
     setprop sys.usb.ffs.aio_compat 0
-    export LD_LIBRARY_PATH /vendor/lib64/hw:/vendor/lib64:/system/lib64
+    export LD_LIBRARY_PATH /system/lib64:/vendor/lib64:/vendor/lib64/hw
     setprop crypto.ready 1
 
 on fs && property:ro.debuggable=0
@@ -22,44 +15,54 @@ on fs && property:ro.debuggable=0
 
 on fs
     install_keyring
-    wait /dev/block/sdc
-    symlink /dev/block/sdc /dev/block/bootdevice
+    wait /dev/block/platform/soc/11270000.ufshci
+    symlink /dev/block/platform/soc/11270000.ufshci /dev/block/bootdevice
 
+# We need vold early for metadata encryption
 on early-fs
     start vold
 
 on late-fs
-    mount_all /first_stage_ramdisk/fstab.mt6789 --late
-    mount /dev/block/by-name/super /system auto ro wait
-    mount /dev/block/by-name/super /vendor auto ro wait
+    # Mount RW partitions which need run fsck
+    mount_all /first_stage_ramdisk/fstab.mt8781 --late
 
 on post-fs
     start boot-hal-1-2
-    symlink /dev/block/by-name/boot_a /dev/block/by-name/preloader_raw_a
-    symlink /dev/block/by-name/boot_b /dev/block/by-name/preloader_raw_b
+
+    symlink /dev/block/mapper/pl_a /dev/block/by-name/preloader_raw_a
+    symlink /dev/block/mapper/pl_b /dev/block/by-name/preloader_raw_b
 
 on boot
-    ifelse "${ro.boot.slot}" == "a", (
-        exec /sbin/bootctrl set_active_slot 0
-    ), (
-        exec /sbin/bootctrl set_active_slot 1
-    )
     start mtk.plpath.utils.link
 
 on property:persist.vendor.mtk.pl_lnk=1
-    symlink /dev/block/by-name/boot_a /dev/block/by-name/preloader_raw_a
-    symlink /dev/block/by-name/boot_b /dev/block/by-name/preloader_raw_b
-    symlink /dev/block/by-name/boot_a /dev/block/platform/bootdevice/by-name/preloader_raw_a
-    symlink /dev/block/by-name/boot_b /dev/block/platform/bootdevice/by-name/preloader_raw_b
+    symlink /dev/block/mapper/pl_a /dev/block/by-name/preloader_raw_a
+    symlink /dev/block/mapper/pl_b /dev/block/by-name/preloader_raw_b
+    symlink /dev/block/mapper/pl_a /dev/block/platform/bootdevice/by-name/preloader_raw_a
+    symlink /dev/block/mapper/pl_b /dev/block/platform/bootdevice/by-name/preloader_raw_b
 
-symlink /dev/block/by-name/lk1 /dev/block/by-name/bootloader1
-# Remove lk2 if not confirmed
-# symlink /dev/block/by-name/lk2 /dev/block/by-name/bootloader2
+# FSTAB_RAW2(lk2,bootloader2) of fstab.in.emmc, but without bootloader2 mount point
+    symlink /dev/block/by-name/lk1 /dev/block/by-name/bootloader1
+    symlink /dev/block/by-name/lk2 /dev/block/by-name/bootloader2
 
-# Remove UFS-specific symlinks
-# on property:vendor.mtk.boot0_linka=1
-#     symlink /dev/block/sda /dev/block/mmcblk0boot0
-# ...
+# Fix ro.vendor.mtk_ufs_support remove issue of recovery mode
+on property:vendor.mtk.boot0_linka=1
+    symlink /dev/block/sda /dev/block/mmcblk0boot0
+
+on property:vendor.mtk.boot0_linkb=1
+    symlink /dev/block/sdb /dev/block/mmcblk0boot0
+
+on property:vendor.mtk.boot0_linkc=1
+    symlink /dev/block/sdc /dev/block/mmcblk0boot0
+
+on property:vendor.mtk.boot1_linka=1
+    symlink /dev/block/sda /dev/block/mmcblk0boot1
+
+on property:vendor.mtk.boot1_linkb=1
+    symlink /dev/block/sdb /dev/block/mmcblk0boot1
+
+on property:vendor.mtk.boot1_linkc=1
+    symlink /dev/block/sdc /dev/block/mmcblk0boot1
 
 service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
     class main
@@ -71,15 +74,15 @@ service mtk.plpath.utils.link /system/bin/mtk_plpath_utils
 
 service vendor.gatekeeper-1-0 /vendor/bin/hw/android.hardware.gatekeeper@1.0-service
     interface android.hardware.gatekeeper@1.0::IGatekeeper default
-    class hal
-    user system
-    group system
+    user root
+    group root
     disabled
     seclabel u:r:recovery:s0
 
-service vendor.keymint-trustkernel /vendor/bin/hw/android.hardware.security.keymint-service.trustkernel
+service vendor.keymint-trustkernel /vendor/bin/hw/android.hardware.security.keymint-service.trustkerne
     class early_hal
-    interface android.hardware.security.keymint@1.0::IKeymintDevice default
+    interface android.hardware.keymaster@4.0::IKeymasterDevice default
+    interface android.hardware.keymaster@4.1::IKeymasterDevice default
     user nobody
     seclabel u:r:recovery:s0
 
@@ -94,39 +97,37 @@ service keymaster_attestation-1-1 /vendor/bin/hw/vendor.mediatek.hardware.keymas
 
 on property:crypto.ready=1
     start vendor.keymint-trustkernel
-    ifelse "! -f /data/.decrypted", (
-        log -p e "Data decryption failed"
-    )
-    start vendor.gatekeeper-1-0
-    start keymaster_attestation-1-1
 
 on property:hwservicemanager.ready=true
+    start mobicore
     start vendor.gatekeeper-1-0
     start vendor.keymint-trustkernel
-    start keymaster_attestation-1-1
 
 on property:ro.crypto.state=unsupported
+    stop mobicore
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
-    stop keymaster_attestation-1-1
 
 on property:ro.crypto.state=unencrypted
+    stop mobicore
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
-    stop keymaster_attestation-1-1
 
 on property:twrp.decrypt.done=true
+    stop mobicore
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
-    stop keymaster_attestation-1-1
 
 on property:crypto.ready=0
+    stop mobicore
     stop vendor.gatekeeper-1-0
     stop vendor.keymint-trustkernel
-    stop keymaster_attestation-1-1
 
 on post-fs-data
     mkdir /data/vendor_de 0770 system system
     mkdir /data/vendor_de/0 0770 system system
     mkdir /data/vendor_de/0/cryptoeng 0770 system system
-    setprop sys.usb.config adb
+
+    start health-hal-2-1
+    setprop sys.usb.config mtp,adb
+
