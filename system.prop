@@ -15,5 +15,5 @@ ro.hardware.kmsetkey=trustkernel
 ro.vendor.mtk_tee_gp_support=1
 ro.vendor.mtk_trustkernel_tee_support=1
 
-# Force keymaster version
-keymaster_ver=4.1
+# Force use keymint instead of keymaster
+ro.hardware.keymint=trustkernel

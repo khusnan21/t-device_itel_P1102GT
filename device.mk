@@ -38,13 +38,13 @@ AB_OTA_PARTITIONS += \
 
 AB_OTA_POSTINSTALL_CONFIG += \
     RUN_POSTINSTALL_system=true \
-    POSTINSTALL_PATH_system=system/bin/mtk_plpath_utils \
+    POSTINSTALL_PATH_system=vendor/bin/mtk_plpath_utils \
     FILESYSTEM_TYPE_system=ext4 \
     POSTINSTALL_OPTIONAL_system=true
 
 AB_OTA_POSTINSTALL_CONFIG += \
     RUN_POSTINSTALL_vendor=true \
-    POSTINSTALL_PATH_vendor=bin/checkpoint_gc \
+    POSTINSTALL_PATH_vendor=vendor/bin/checkpoint_gc \
     FILESYSTEM_TYPE_vendor=ext4 \
     POSTINSTALL_OPTIONAL_vendor=true
 
@@ -58,7 +58,7 @@ PRODUCT_PROPERTY_OVERRIDES += ro.twrp.vendor_boot=true
 PRODUCT_USE_DYNAMIC_PARTITIONS := true
 
 # API
-PRODUCT_SHIPPING_API_LEVEL := 31
+PRODUCT_SHIPPING_API_LEVEL := 34
 PRODUCT_TARGET_VNDK_VERSION := 31
 
 # Boot control HAL
@@ -79,26 +79,21 @@ PRODUCT_PACKAGES += \
     android.hardware.health@2.1-impl \
     android.hardware.health@2.1-service
 
-# Keymaster
-PRODUCT_PACKAGES += \
-    android.hardware.keymaster@4.1
-
-# Keystore Hal
-PRODUCT_PACKAGES += \
-    android.system.keystore2
-
 # MTK plpath utils
 PRODUCT_PACKAGES += \
     mtk_plpath_utils \
     mtk_plpath_utils.recovery
 
-# Security
+# Security (TrustKernel-based)
 PRODUCT_PACKAGES += \
     android.hardware.security.keymint \
     android.hardware.security.secureclock \
-    android.hardware.security.sharedsecret
+    android.hardware.security.sharedsecret \
+    android.hardware.gatekeeper@1.0-service \
+    android.hardware.security.keymint-service.trustkernel \
+    vendor.mediatek.hardware.keymaster_attestation@1.1-service
 
-# Update engine
+# Update engine (optional for TWRP)
 PRODUCT_PACKAGES += \
     update_engine \
     update_engine_sideload \
@@ -107,9 +102,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES_DEBUG += \
     update_engine_client
 
-# Additional configs
+# Relink library untuk recovery
 TW_RECOVERY_ADDITIONAL_RELINK_LIBRARY_FILES += \
-    $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.keymaster@4.1
+    $(TARGET_OUT_SHARED_LIBRARIES)/android.hardware.security.keymint \
+    $(TARGET_OUT_SHARED_LIBRARIES)/vendor.mediatek.hardware.keymaster_attestation@1.1
 
 TARGET_RECOVERY_DEVICE_MODULES += \
-    android.hardware.keymaster@4.1
+    android.hardware.security.keymint \
+    vendor.mediatek.hardware.keymaster_attestation@1.1
