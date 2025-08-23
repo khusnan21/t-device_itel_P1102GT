@@ -1,6 +1,6 @@
 import /init.custom.rc
 import /init.vibrator.rc
-# init.tee.rc tidak dipakai lagi karena sudah digabung di sini
+import /init.tee.rc 
 
 on early-init
     export ANDROID_ROOT /system
